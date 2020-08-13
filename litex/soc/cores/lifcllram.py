@@ -44,13 +44,20 @@ class LIFCLLRAM(Module):
                         self.bus.dat_r[32*w:32*(w+1)].eq(dataout)
                     ),
                 ]
+                byte_en_n = Signal(4)
+                self.comb += [
+                    byte_en_n[0].eq(~self.bus.sel[4*w + 0]),
+                    byte_en_n[1].eq(~self.bus.sel[4*w + 1]),
+                    byte_en_n[2].eq(~self.bus.sel[4*w + 2]),
+                    byte_en_n[3].eq(~self.bus.sel[4*w + 3]),
+                ]
                 self.specials += Instance("SP512K",
                     p_ECC_BYTE_SEL = "BYTE_EN",
                     i_AD=self.bus.adr[:14],
                     i_DI=datain,
                     i_WE=wren,
                     i_CS=0b1,
-                    i_BYTEEN_N=Replicate(0,4), #TODO
+                    i_BYTEEN_N=byte_en_n,
                     i_CE=0b1,
                     i_CLK=ClockSignal(),
                     o_DO=dataout
